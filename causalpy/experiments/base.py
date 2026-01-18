@@ -15,7 +15,7 @@
 Base class for quasi experimental designs.
 """
 
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Any, Literal
 
 import arviz as az
@@ -28,7 +28,7 @@ from causalpy.reporting import EffectSummary
 from causalpy.skl_models import create_causalpy_compatible_class
 
 
-class BaseExperiment:
+class BaseExperiment(ABC):
     """Base class for quasi experimental designs."""
 
     labels: list[str]
