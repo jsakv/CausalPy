@@ -698,7 +698,7 @@ class HierarchicalLinearRegression(PyMCModel):
 
     Defaults priors are used only when no prior dict is supplied; custom priors must be complete for the selected parameterization.
 
-    Example
+    Examples
     --------
     >>> import numpy as np
     >>> import xarray as xr

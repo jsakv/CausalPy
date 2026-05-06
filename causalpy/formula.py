@@ -11,6 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+"""Formula parsing helpers for fixed and random-effect model matrices."""
+
 import re
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
@@ -164,6 +166,7 @@ class MixedModelFormula:
     Parsed mixed-effects formula object produced by ``Parser.parse(...)``.
 
     This lightweight representation stores:
+
     - ``lhs``: left-hand side variable name
     - ``rhs``: fixed-effects right-hand side expression
     - ``random_components``: parsed lme4-style ``(expr | group)`` components
@@ -231,6 +234,24 @@ class MixedModelFormula:
 
         Signature mirrors Formulaic's ``ModelSpec.get_model_matrix(...)``.
         ``attr_overrides`` are forwarded to Formulaic as model-spec overrides.
+
+        Parameters
+        ----------
+        data : Any
+            Input data passed to Formulaic for matrix materialization.
+        context : Mapping[str, Any], optional
+            Evaluation context forwarded to Formulaic.
+        drop_rows : set[int], optional
+            Mutable set used by Formulaic to track rows dropped during matrix
+            construction.
+        **attr_overrides : Any
+            Additional Formulaic model-spec override attributes.
+
+        Returns
+        -------
+        MixedModelMatrices
+            Aligned outcome, fixed-effect, and random-effect matrices with
+            parser metadata.
         """
         grouping_variables = self.grouping_variables
         if len(grouping_variables) > 1:
@@ -362,6 +383,16 @@ class Parser:
         Supports lme4-style random syntax ``(expr | group)`` and returns a
         ``MixedModelFormula`` for later materialization. This parser currently
         supports one grouping variable and one random component.
+
+        Parameters
+        ----------
+        formula : str
+            Mixed-effects formula string to parse.
+
+        Returns
+        -------
+        MixedModelFormula
+            Parsed formula representation.
         """
         if "~" not in formula:
             raise ValueError(f"Formula must contain '~': {formula!r}")
@@ -406,5 +437,20 @@ def parse_formula(
     formula: str,
     data: pd.DataFrame,
 ) -> MixedModelMatrices:
-    """Parse and materialize a formula against ``data`` in a single call."""
+    """
+    Parse and materialize a formula against ``data`` in a single call.
+
+    Parameters
+    ----------
+    formula : str
+        Mixed-effects formula string to parse.
+    data : pandas.DataFrame
+        Input data used to build the model matrices.
+
+    Returns
+    -------
+    MixedModelMatrices
+        Aligned outcome, fixed-effect, and random-effect matrices with parser
+        metadata.
+    """
     return Parser.parse(formula).get_model_matrix(data=data)
