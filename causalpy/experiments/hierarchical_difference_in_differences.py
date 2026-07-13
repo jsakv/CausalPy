@@ -160,6 +160,7 @@ class HierarchicalDifferenceInDifferences(BaseExperiment):
         """Fit the model and compute derived posterior quantities."""
         self._fit_model()
         self._extract_att()
+        self._extract_group_effects()
         self._compute_counterfactual()
         self._compute_icc()
 
@@ -411,6 +412,10 @@ class HierarchicalDifferenceInDifferences(BaseExperiment):
         self.att = self.idata.posterior["beta_fixed"].sel(coeffs=self.did_term)
         self.causal_impact = self.att
         self._did_term_index = did_idx
+
+    def _extract_group_effects(self) -> None:
+        """Extract posterior samples for group-level random-effect deviations."""
+        self.group_effects = self.idata.posterior["beta_random"]
 
     def _compute_icc(self) -> None:
         """Compute the random-intercept intraclass correlation when available."""

@@ -306,6 +306,19 @@ class TestHierarchicalDifferenceInDifferencesInterface:
         xr.testing.assert_identical(result.att, expected)
         xr.testing.assert_identical(result.causal_impact, expected)
 
+    def test_group_effects_selects_random_effects_posterior(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Validate that group effects are the random-effects posterior."""
+        data = self._panel_data()
+        matrices = self._matrices(data)
+        self._patch_parse_formula(monkeypatch, matrices)
+
+        result = self._experiment(data)
+
+        expected = result.idata.posterior["beta_random"]
+        xr.testing.assert_identical(result.group_effects, expected)
+
     def test_get_plot_data_bayesian_returns_observed_panel_copy(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
